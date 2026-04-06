@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  googleTokens    Json?
+  apiToken        String?   @unique
+  nutritionGoals  Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  habits           Habit[]
+  habitCompletions HabitCompletion[]
+  habitFreezes     HabitFreeze[]
+  fastingSessions  FastingSession[]
+  trainingSessions TrainingSession[]
+  weightLogs       WeightLog[]
+  dailyLogs        DailyLog[]
+  nutritionLogs    NutritionLog[]
+  savedRecipes     SavedRecipe[]
+  mealPlans        MealPlan[]
+  shoppingLists    ShoppingList[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Habit {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  category     String
+  type         String   @default("toggle")
+  target       Float?
+  unit         String?
+  streak       Int      @default(0)
+  bestStreak   Int      @default(0)
+  calendarSync Boolean  @default(false)
+  color        String   @default("#C8FF3E")
+  isActive     Boolean   @default(true)
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions HabitCompletion[]
+  freezes     HabitFreeze[]
+}
+
+model HabitFreeze {
+  id         String   @id @default(cuid())
+  habitId    String
+  userId     String
+  frozenDate DateTime
+  createdAt  DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, frozenDate])
+}
+
+model HabitCompletion {
+  id          String   @id @default(cuid())
+  habitId     String
+  userId      String
+  value       Float?
+  notes       String?
+  completedAt DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, completedAt])
+}
+
+model FastingSession {
+  id         String    @id @default(cuid())
+  userId     String
+  protocol   String
+  startTime  DateTime
+  endTime    DateTime?
+  calEventId String?
+  notes      String?
+  completed  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TrainingSession {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  scheduledAt DateTime
+  calEventId  String?
+  completed   Boolean  @default(false)
+  duration    Int?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WeightLog {
+  id       String   @id @default(cuid())
+  userId   String
+  weight   Float
+  unit     String   @default("kg")
+  loggedAt DateTime @default(now())
+  notes    String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model DailyLog {
+  id               String   @id @default(cuid())
+  userId           String
+  date             DateTime
+  consistencyScore Float    @default(0)
+  waterIntake      Float    @default(0)
+  steps            Int      @default(0)
+  activeEnergy     Float?   // kcal
+  restingHR        Int?     // bpm
+  heartRateAvg     Int?     // bpm
+  sleepHours       Float?   // hours
+  sleepQuality     String?  // deep/core/rem breakdown JSON
+  weight           Float?   // kg (from Health)
+  waistCm          Float?   // cm
+  bodyFatPct       Float?   // percentage
+  mood             Int?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model NutritionLog {
+  id        String   @id @default(cuid())
+  userId    String
+  mealName  String
+  calories  Int
+  protein   Float
+  carbs     Float
+  fat       Float
+  mealType  String
+  loggedAt  DateTime @default(now())
+  date      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedRecipe {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  category     String
+  mealType     String
+  macros       Json
+  ingredients  Json
+  instructions Json
+  tips         Json?
+  tags         String[]
+  imageUrl     String?
+  isFavourite  Boolean  @default(false)
+  rating       Int?
+  notes        String?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealPlans    MealPlan[]
+}
+
+model MealPlan {
+  id        String   @id @default(cuid())
+  userId    String
+  recipeId  String
+  date      String
+  mealSlot  String
+  servings  Int      @default(1)
+  createdAt DateTime @default(now())
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe    SavedRecipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model ShoppingList {
+  id        String             @id @default(cuid())
+  userId    String
+  name      String
+  dateRange String
+  metadata  Json?
+  createdAt DateTime           @default(now())
+  items     ShoppingListItem[]
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ShoppingListItem {
+  id             String       @id @default(cuid())
+  shoppingListId String
+  ingredient     String
+  quantity       String
+  unit           String?
+  category       String?
+  sources        String?
+  checked        Boolean      @default(false)
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+}
