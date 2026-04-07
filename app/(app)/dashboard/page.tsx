@@ -280,7 +280,6 @@ export default async function DashboardPage() {
           animateValue={habitsCompleted}
           accentColor={habitsCompleted === habitsTotal && habitsTotal > 0 ? 'var(--success)' : 'var(--accent)'}
           stagger={4}
-          className=""
         />
 
         {/* Training today — col 2-3, row 2 */}
