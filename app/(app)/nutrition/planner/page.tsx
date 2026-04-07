@@ -130,7 +130,7 @@ export default function PlannerPage() {
       sources: Array.from(val.sources).join(', '),
     }))
 
-    if (allIngredients.length === 0) { toast('Sem refeicoes planeadas esta semana', 'error'); return }
+    if (allIngredients.length === 0) { toast('Sem refeições planeadas esta semana', 'error'); return }
 
     const recipeNames = Object.values(recipeMap).map(r => r.name)
     const name = recipeNames.length <= 3 ? recipeNames.join(' + ') : `${recipeNames.length} receitas`

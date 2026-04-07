@@ -161,6 +161,7 @@ export function HabitsList({ habits: initialHabits, completedIds: initialComplet
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null) // [ITERATE v1] — habit edit
   const [editDraft, setEditDraft] = useState({ name: '', category: 'Outro', color: '#C8FF3E' })
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -262,11 +263,11 @@ export function HabitsList({ habits: initialHabits, completedIds: initialComplet
   }
 
   const deleteHabit = async (habitId: string) => {
-    if (!confirm('Eliminar este hábito?')) return
     try {
       await fetch(`/api/habits/${habitId}`, { method: 'DELETE' })
       setHabits((prev) => prev.filter((h) => h.id !== habitId))
-      toast('Hábito eliminado', 'info') // [ITERATE v1]
+      setConfirmDeleteId(null)
+      toast('Hábito eliminado', 'info')
     } catch {
       toast('Erro ao eliminar hábito', 'error')
     }
@@ -572,22 +573,50 @@ export function HabitsList({ habits: initialHabits, completedIds: initialComplet
                       <Pencil size={13} />
                     </button>
 
-                    {/* Delete */}
-                    <button
-                      onClick={() => deleteHabit(habit.id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--text-muted)',
-                        cursor: 'pointer',
-                        padding: '4px',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {/* Delete — inline confirmation */}
+                    {confirmDeleteId === habit.id ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <button
+                          onClick={() => deleteHabit(habit.id)}
+                          style={{
+                            fontSize: 11, fontWeight: 700,
+                            background: 'var(--danger-bg)',
+                            border: '1px solid rgba(255,77,77,0.3)',
+                            color: 'var(--danger)',
+                            borderRadius: 6, padding: '3px 8px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Eliminar
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          style={{
+                            fontSize: 11, background: 'none',
+                            border: 'none', color: 'var(--text-muted)',
+                            cursor: 'pointer', padding: '3px 6px',
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(habit.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--text-muted)',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
 
                   {/* Inline edit form — [ITERATE v1] */}

@@ -21,9 +21,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Not found' }, { status: 404 })
   }
 
+  let body: { duration?: number; notes?: string } = {}
+  try { body = await req.json() } catch { /* no body — ok */ }
+
   const updated = await prisma.trainingSession.update({
     where: { id },
-    data: { completed: true },
+    data: {
+      completed: true,
+      ...(body.duration != null && { duration: body.duration }),
+      ...(body.notes != null && { notes: body.notes }),
+    },
   })
 
   return NextResponse.json(updated)

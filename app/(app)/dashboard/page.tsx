@@ -45,7 +45,7 @@ export default async function DashboardPage() {
 
   const todayStr = today.toISOString().split('T')[0]
 
-  const [habits, completionsToday, activeFasting, dailyLog, trainingSessions, weekLogs, nutritionLogs] = userId
+  const [habits, completionsToday, activeFasting, dailyLog, trainingSessions, weekLogs, nutritionLogs, userWithGoals] = userId
     ? await Promise.all([
         prisma.habit.findMany({
           where: { userId, isActive: true },
@@ -71,8 +71,15 @@ export default async function DashboardPage() {
         prisma.nutritionLog.findMany({
           where: { userId, date: todayStr },
         }),
+        prisma.user.findUnique({
+          where: { id: userId },
+          select: { nutritionGoals: true },
+        }),
       ])
-    : [[], [], null, null, [], [], []]
+    : [[], [], null, null, [], [], [], null]
+
+  const nutritionGoals = (userWithGoals as { nutritionGoals: Record<string, number> | null } | null)?.nutritionGoals
+    ?? { calories: 2000, protein: 150, carbs: 200, fat: 65 }
 
   const nutritionTotals = (nutritionLogs as { calories: number; protein: number; carbs: number; fat: number }[]).reduce(
     (acc, l) => ({ calories: acc.calories + l.calories, protein: acc.protein + l.protein, carbs: acc.carbs + l.carbs, fat: acc.fat + l.fat }),
@@ -95,7 +102,8 @@ export default async function DashboardPage() {
 
   const levelColor = levelColors[disciplineResult.level]
   const waterPct = Math.min(Math.round((waterIntake / 2.5) * 100), 100)
-  const dateLabel = today.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateLabelRaw = today.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateLabel = dateLabelRaw.charAt(0).toUpperCase() + dateLabelRaw.slice(1)
 
   // Weekly insight
   const wLogs = weekLogs as Array<{ consistencyScore: number; date: Date }>
@@ -136,11 +144,11 @@ export default async function DashboardPage() {
           <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text)', marginBottom: '4px', letterSpacing: '-0.5px' }}>
             {getGreeting(session?.user?.name)}.
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
             {dateLabel}
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <kbd style={{
             fontSize: 11,
             color: 'var(--text-muted)',
@@ -189,9 +197,8 @@ export default async function DashboardPage() {
 
         {/* Score card — spans 2 rows, col 1 */}
         <div
+          className="bento-score"
           style={{
-            gridColumn: '1',
-            gridRow: '1 / 3',
             background: 'var(--surface)',
             border: `1px solid ${levelColor}22`,
             borderRadius: 'var(--radius-lg)',
@@ -228,9 +235,8 @@ export default async function DashboardPage() {
 
         {/* Fasting card — col 2, row 1 */}
         <div
+          className="bento-fasting"
           style={{
-            gridColumn: '2',
-            gridRow: '1',
             background: 'var(--surface)',
             border: `1px solid ${activeFasting ? 'rgba(200,255,62,0.15)' : 'var(--border)'}`,
             borderRadius: 'var(--radius-md)',
@@ -262,10 +268,11 @@ export default async function DashboardPage() {
         </div>
 
         {/* Water card — col 3, row 1 (interactive widget) */}
-        <WaterWidget initialWater={waterIntake} goal={2.5} />
+        <WaterWidget initialWater={waterIntake} goal={2.5} className="bento-water" />
 
         {/* Habits done — col 4, row 1 */}
         <KpiCard
+          className="bento-habits"
           title="Hábitos Hoje"
           value={`${habitsCompleted}/${habitsTotal}`}
           subtitle={habitsTotal === 0 ? 'Sem hábitos criados' : habitsCompleted === habitsTotal && habitsTotal > 0 ? 'Todos completos!' : `${habitsTotal - habitsCompleted} por completar`}
@@ -278,9 +285,8 @@ export default async function DashboardPage() {
 
         {/* Training today — col 2-3, row 2 */}
         <div
+          className="bento-training"
           style={{
-            gridColumn: '2 / 4',
-            gridRow: '2',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
@@ -336,9 +342,8 @@ export default async function DashboardPage() {
 
         {/* Quick actions — col 4, row 2 */}
         <div
+          className="bento-actions"
           style={{
-            gridColumn: '4',
-            gridRow: '2',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
@@ -586,7 +591,7 @@ export default async function DashboardPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Apple size={15} color="#22c55e" />
-            <h2 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)' }}>Nutricao Hoje</h2>
+            <h2 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)' }}>Nutrição Hoje</h2>
           </div>
           <Link href="/nutrition" style={{ fontSize: '12px', color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
             Ver detalhes →
@@ -601,19 +606,21 @@ export default async function DashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                   <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', fontVariantNumeric: 'tabular-nums' }}>{nutritionTotals.calories}</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>/ 2000 kcal</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>/ {nutritionGoals.calories} kcal</span>
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  {(nutritionLogs as unknown[]).length} refeicao(es)
+                <span style={{ fontSize: 11, color: nutritionTotals.calories > nutritionGoals.calories ? 'var(--warning)' : 'var(--text-muted)' }}>
+                  {nutritionTotals.calories > nutritionGoals.calories
+                    ? `+${nutritionTotals.calories - nutritionGoals.calories} kcal`
+                    : `${(nutritionLogs as unknown[]).length} ${(nutritionLogs as unknown[]).length === 1 ? 'refeição' : 'refeições'}`}
                 </span>
               </div>
               <div style={{ height: 4, background: 'var(--border)', borderRadius: 99, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
-                  background: nutritionTotals.calories > 2000
+                  background: nutritionTotals.calories > nutritionGoals.calories
                     ? 'linear-gradient(90deg, var(--accent), var(--warning))'
                     : 'linear-gradient(90deg, var(--accent), var(--accent2))',
-                  width: `${Math.min((nutritionTotals.calories / 2000) * 100, 100)}%`,
+                  width: `${Math.min((nutritionTotals.calories / nutritionGoals.calories) * 100, 100)}%`,
                   borderRadius: 99,
                 }} />
               </div>
@@ -635,7 +642,7 @@ export default async function DashboardPage() {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted)' }}>Sem refeicoes registadas hoje</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted)' }}>Sem refeições registadas hoje</div>
                 <div style={{ fontSize: 11, color: 'var(--text-disabled)', marginTop: 2 }}>Regista ou gera uma receita com IA</div>
               </div>
               <Link href="/nutrition/generate" style={{

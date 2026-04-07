@@ -96,9 +96,24 @@ export function FastingTimer({ startTime, protocol }: FastingTimerProps) {
         </div>
       </div>
 
-      <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-        Meta: <strong style={{ color: 'var(--text)' }}>{goalHours}h</strong> — Protocolo{' '}
-        <strong style={{ color: 'var(--accent)' }}>{protocol}</strong>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+          Meta: <strong style={{ color: 'var(--text)' }}>{goalHours}h</strong> — Protocolo{' '}
+          <strong style={{ color: 'var(--accent)' }}>{protocol}</strong>
+        </div>
+        {!completed && (() => {
+          const endTime = new Date(new Date(startTime).getTime() + goalSeconds * 1000)
+          const isNextDay = endTime.getDate() !== new Date().getDate()
+          return (
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              Termina às{' '}
+              <strong style={{ color: 'var(--text)' }}>
+                {endTime.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}h
+              </strong>
+              {isNextDay ? ' amanhã' : ' de hoje'}
+            </div>
+          )
+        })()}
       </div>
     </div>
   )

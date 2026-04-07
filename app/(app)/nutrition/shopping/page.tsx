@@ -5,13 +5,13 @@ import { Plus, Check, Trash2, Copy, Share2, ChefHat, ShoppingCart, ChevronLeft, 
 import { toast } from '@/lib/toast'
 
 const GROUP_LABELS: Record<string, string> = {
-  protein: 'Proteinas',
+  protein: 'Proteínas',
   vegetable: 'Legumes e Vegetais',
   vegetables: 'Legumes e Vegetais',
   fruit: 'Frutas',
-  dairy: 'Lacticinios',
-  grain: 'Cereais e Graos',
-  fat: 'Gorduras e Oleos',
+  dairy: 'Lacticínios',
+  grain: 'Cereais e Grãos',
+  fat: 'Gorduras e Óleos',
   seasoning: 'Temperos e Especiarias',
   pantry: 'Despensa',
   other: 'Outros',

@@ -276,11 +276,12 @@ export function FastingClient({ activeFasting: initialActive, history: initialHi
                 Iniciar Jejum {protocol}
               </button>
               <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                Termina às {(() => {
+                {(() => {
                   const hrs = protocol === '16:8' ? 16 : protocol === 'OMAD' ? 23 : 36
                   const end = new Date(Date.now() + hrs * 3600000)
-                  return end.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
-                })()}h de hoje
+                  const isNextDay = end.getDate() !== new Date().getDate()
+                  return `Termina às ${end.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}h${isNextDay ? ' amanhã' : ' de hoje'}`
+                })()}
               </p>
             </div>
           </div>

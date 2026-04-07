@@ -156,6 +156,8 @@ button:active { transform: scale(0.97); }
 .stagger-4 { animation: fadeInUp 320ms ease both; animation-delay: 180ms; }
 .stagger-5 { animation: fadeInUp 320ms ease both; animation-delay: 240ms; }
 .stagger-6 { animation: fadeInUp 320ms ease both; animation-delay: 300ms; }
+.stagger-7 { animation: fadeInUp 320ms ease both; animation-delay: 360ms; }
+.stagger-8 { animation: fadeInUp 320ms ease both; animation-delay: 420ms; }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
@@ -250,25 +252,53 @@ a, button { transition: all var(--ease-fast); }
   transition: transform var(--ease-base);
 }
 
-/* Bento grid — 4 cols desktop, 2 cols tablet, 1 col mobile */
+/* Bento grid — named positions, fully responsive */
 .bento-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 14px;
 }
-@media (max-width: 1024px) {
+
+/* Desktop positions */
+.bento-score    { grid-column: 1;     grid-row: 1 / 3; }
+.bento-fasting  { grid-column: 2;     grid-row: 1; }
+.bento-water    { grid-column: 3;     grid-row: 1; }
+.bento-habits   { grid-column: 4;     grid-row: 1; }
+.bento-training { grid-column: 2 / 4; grid-row: 2; }
+.bento-actions  { grid-column: 4;     grid-row: 2; }
+
+/* Tablet — 2 cols, score full-width, rest flow */
+@media (max-width: 900px) {
   .bento-grid {
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: unset;
   }
-  .bento-grid .bento-tall {
-    grid-row: span 1;
-  }
+  .bento-score    { grid-column: 1 / -1; grid-row: auto; }
+  .bento-fasting  { grid-column: auto;   grid-row: auto; }
+  .bento-water    { grid-column: auto;   grid-row: auto; }
+  .bento-habits   { grid-column: auto;   grid-row: auto; }
+  .bento-training { grid-column: 1 / -1; grid-row: auto; }
+  .bento-actions  { grid-column: 1 / -1; grid-row: auto; }
 }
-@media (max-width: 480px) {
+
+/* Mobile — single column stack */
+@media (max-width: 640px) {
   .bento-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
+  .bento-score,
+  .bento-fasting,
+  .bento-water,
+  .bento-habits,
+  .bento-training,
+  .bento-actions  { grid-column: 1; grid-row: auto; }
+}
+
+/* Utility — hide on mobile */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
 }
 
 /* Scrollbar — Firefox */

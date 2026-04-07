@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation'
 import { BarChart3, Sparkles, BookOpen, CalendarDays, ShoppingCart } from 'lucide-react'
 
 const subNav = [
-  { href: '/nutrition', label: 'Visao Geral', exact: true, icon: BarChart3 },
+  { href: '/nutrition', label: 'Visão Geral', exact: true, icon: BarChart3 },
   { href: '/nutrition/generate', label: 'Gerar Receita', icon: Sparkles },
-  { href: '/nutrition/recipes', label: 'Receituario', icon: BookOpen },
+  { href: '/nutrition/recipes', label: 'Receituário', icon: BookOpen },
   { href: '/nutrition/planner', label: 'Planeador', icon: CalendarDays },
   { href: '/nutrition/shopping', label: 'Compras', icon: ShoppingCart },
 ]

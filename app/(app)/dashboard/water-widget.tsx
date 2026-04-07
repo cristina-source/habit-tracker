@@ -8,9 +8,10 @@ import { toast } from '@/lib/toast'
 interface Props {
   initialWater: number
   goal?: number
+  className?: string
 }
 
-export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
+export function WaterWidget({ initialWater, goal = 2.5, className = '' }: Props) {
   const [water, setWater] = useState(initialWater)
   const [loading, setLoading] = useState(false)
   const [, startTransition] = useTransition()
@@ -19,7 +20,7 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
   const pct = Math.min(Math.round((water / goal) * 100), 100)
 
   const add = async (amount: number) => {
-    const next = Math.round((water + amount) * 10) / 10
+    const next = Math.max(0, Math.round((water + amount) * 10) / 10)
     setWater(next)
     setLoading(true)
     try {
@@ -39,9 +40,7 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
   }
 
   return (
-    <div style={{
-      gridColumn: '3',
-      gridRow: '1',
+    <div className={className} style={{
       background: 'var(--surface)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-md)',
@@ -87,7 +86,7 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
           <button
             key={amount}
             onClick={() => add(amount)}
-            disabled={loading || pct >= 100}
+            disabled={loading}
             style={{
               flex: 1,
               padding: '6px 0',
@@ -97,12 +96,12 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
               color: 'var(--accent2)',
               fontSize: 11,
               fontWeight: 700,
-              cursor: loading || pct >= 100 ? 'not-allowed' : 'pointer',
-              opacity: loading || pct >= 100 ? 0.5 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1,
               transition: 'all var(--ease-fast)',
             }}
             onMouseEnter={(e) => {
-              if (!loading && pct < 100) e.currentTarget.style.background = 'rgba(62,255,200,0.15)'
+              if (!loading) e.currentTarget.style.background = 'rgba(62,255,200,0.15)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'rgba(62,255,200,0.08)'
@@ -111,6 +110,31 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
             +{amount === 0.25 ? '250ml' : '500ml'}
           </button>
         ))}
+        <button
+          onClick={() => water > 0 && add(-0.25)}
+          disabled={loading || water <= 0}
+          title="Remover 250ml"
+          style={{
+            padding: '6px 10px',
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-sm)',
+            color: water > 0 ? 'var(--text-muted)' : 'var(--text-disabled)',
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: loading || water <= 0 ? 'not-allowed' : 'pointer',
+            opacity: water <= 0 ? 0.3 : 1,
+            transition: 'all var(--ease-fast)',
+          }}
+          onMouseEnter={(e) => {
+            if (!loading && water > 0) e.currentTarget.style.background = 'rgba(255,77,77,0.1)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+          }}
+        >
+          −
+        </button>
       </div>
 
       {/* Shimmer when loading */}

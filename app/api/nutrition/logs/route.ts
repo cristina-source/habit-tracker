@@ -46,15 +46,37 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { mealName, calories, protein, carbs, fat, mealType, date } = body
   if (!mealName || !calories) return NextResponse.json({ error: 'mealName and calories required' }, { status: 400 })
+
+  const parsedCalories = parseInt(calories)
+  const parsedProtein = parseFloat(protein ?? 0)
+  const parsedCarbs = parseFloat(carbs ?? 0)
+  const parsedFat = parseFloat(fat ?? 0)
+
+  if (isNaN(parsedCalories) || parsedCalories < 0 || parsedCalories > 10000) {
+    return NextResponse.json({ error: 'Calorias inválidas (0–10000)' }, { status: 400 })
+  }
+  if (isNaN(parsedProtein) || parsedProtein < 0 || parsedProtein > 500) {
+    return NextResponse.json({ error: 'Proteína inválida (0–500g)' }, { status: 400 })
+  }
+  if (isNaN(parsedCarbs) || parsedCarbs < 0 || parsedCarbs > 500) {
+    return NextResponse.json({ error: 'Hidratos inválidos (0–500g)' }, { status: 400 })
+  }
+  if (isNaN(parsedFat) || parsedFat < 0 || parsedFat > 300) {
+    return NextResponse.json({ error: 'Gordura inválida (0–300g)' }, { status: 400 })
+  }
+
+  const VALID_MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'post-workout', 'other']
+  const safeMealType = VALID_MEAL_TYPES.includes(String(mealType)) ? String(mealType) : 'other'
+
   const log = await prisma.nutritionLog.create({
     data: {
       userId: userId,
       mealName: String(mealName).trim().slice(0, 100),
-      calories: parseInt(calories),
-      protein: parseFloat(protein ?? 0),
-      carbs: parseFloat(carbs ?? 0),
-      fat: parseFloat(fat ?? 0),
-      mealType: String(mealType ?? 'other').trim(),
+      calories: parsedCalories,
+      protein: parsedProtein,
+      carbs: parsedCarbs,
+      fat: parsedFat,
+      mealType: safeMealType,
       date: date ?? new Date().toISOString().split('T')[0],
     },
   })

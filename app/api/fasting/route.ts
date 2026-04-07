@@ -46,17 +46,22 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { protocol = '16:8' } = body
 
-  // Stop any active session
-  await prisma.fastingSession.updateMany({
-    where: { userId, completed: false },
-    data: { completed: true, endTime: new Date() },
-  })
-
   const startTime = new Date()
   const hours = PROTOCOL_HOURS[protocol] ?? 16
   const endTime = new Date(startTime.getTime() + hours * 3600 * 1000)
 
-  // Try to create Google Calendar event
+  // Use transaction to atomically stop active sessions and create the new one
+  const session_ = await prisma.$transaction(async (tx) => {
+    await tx.fastingSession.updateMany({
+      where: { userId, completed: false },
+      data: { completed: true, endTime: new Date() },
+    })
+    return tx.fastingSession.create({
+      data: { userId, protocol, startTime },
+    })
+  })
+
+  // Try to create Google Calendar event (outside transaction — optional)
   let calEventId: string | undefined
   try {
     const user = await prisma.user.findUnique({ where: { id: userId } })
@@ -69,19 +74,16 @@ export async function POST(req: NextRequest) {
         endTime,
         tokens.refresh_token
       )
+      if (calEventId) {
+        await prisma.fastingSession.update({
+          where: { id: session_.id },
+          data: { calEventId },
+        })
+      }
     }
   } catch {
-    // Calendar sync optional — continue
+    // Calendar sync optional — continue without blocking the response
   }
 
-  const session_ = await prisma.fastingSession.create({
-    data: {
-      userId,
-      protocol,
-      startTime,
-      calEventId,
-    },
-  })
-
-  return NextResponse.json(session_, { status: 201 })
+  return NextResponse.json({ ...session_, calEventId }, { status: 201 })
 }
