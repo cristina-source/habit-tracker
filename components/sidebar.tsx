@@ -142,9 +142,9 @@ export function Sidebar() {
                   <span style={{
                     marginLeft: 'auto',
                     fontSize: '10px',
-                    color: 'var(--text-disabled)',
+                    color: isActive ? 'var(--text-disabled)' : 'var(--text-disabled)',
                     fontFamily: 'ui-monospace, monospace',
-                    opacity: isActive ? 0.7 : 0,
+                    opacity: isActive ? 0.6 : 0,
                     transition: 'opacity var(--ease-fast)',
                   }} className="sidebar-shortcut">
                     {shortcut.split(' ').pop()}
@@ -207,7 +207,7 @@ export function Sidebar() {
 
       <style>{`
         a:hover .sidebar-shortcut {
-          opacity: 0.5 !important;
+          opacity: 0.45 !important;
         }
       `}</style>
     </aside>

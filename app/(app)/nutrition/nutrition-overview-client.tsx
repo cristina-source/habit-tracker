@@ -8,11 +8,11 @@ import NextLink from 'next/link'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'post-workout']
 const MEAL_TYPE_LABELS: Record<string, string> = {
-  breakfast: 'Pequeno-almoco',
-  lunch: 'Almoco',
+  breakfast: 'Pequeno-almoço',
+  lunch: 'Almoço',
   dinner: 'Jantar',
   snack: 'Snack',
-  'post-workout': 'Pos-treino',
+  'post-workout': 'Pós-treino',
 }
 const MEAL_TYPE_ICONS: Record<string, string> = {
   breakfast: '🌅',
@@ -130,9 +130,9 @@ function WeekChart({ data, goal }: { data: DayData[]; goal: number }) {
       borderRadius: 'var(--radius-lg)', padding: '20px 24px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Ultimos 7 dias</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Últimos 7 dias</span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-          Media: {Math.round(data.reduce((s, d) => s + d.calories, 0) / Math.max(data.filter(d => d.calories > 0).length, 1))} kcal
+          Média: {Math.round(data.reduce((s, d) => s + d.calories, 0) / Math.max(data.filter(d => d.calories > 0).length, 1))} kcal
         </span>
       </div>
       <div style={{ position: 'relative', height: 120 }}>
@@ -246,7 +246,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
         setLogs(prev => [...prev, { ...log, loggedAt: new Date().toISOString() }])
         setForm({ mealName: '', calories: '', protein: '', carbs: '', fat: '', mealType: 'lunch' })
         setShowForm(false)
-        toast('Refeicao registada', 'success')
+        toast('Refeição registada', 'success')
         router.refresh()
       }
     } catch { toast('Erro ao guardar', 'error') }
@@ -257,7 +257,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
     setLogs(prev => prev.filter(l => l.id !== id))
     const res = await fetch(`/api/nutrition/logs/${id}`, { method: 'DELETE' })
     if (res.ok) {
-      toast('Refeicao removida', 'success')
+      toast('Refeição removida', 'success')
     } else {
       setLogs(initialLogs)
     }
@@ -282,7 +282,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text)', letterSpacing: '-0.4px' }}>Nutricao</h1>
+          <h1 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text)', letterSpacing: '-0.4px' }}>Nutrição</h1>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: 2 }}>
             {new Date().toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
@@ -316,7 +316,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
         borderRadius: 'var(--radius-lg)', padding: '20px 24px',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Progresso diario</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Progresso diário</span>
           <button
             onClick={() => { setGoalsForm(goals); setShowGoals(true) }}
             style={{
@@ -339,13 +339,13 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
         >
           <div style={{ background: 'var(--surface)', borderRadius: 'var(--radius-lg)', width: '100%', maxWidth: 400, padding: '24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', margin: 0 }}>Metas Diarias</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', margin: 0 }}>Metas Diárias</h3>
               <button onClick={() => setShowGoals(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 20 }}>x</button>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[
                 { key: 'calories' as const, label: 'Calorias (kcal)', color: 'var(--accent)' },
-                { key: 'protein' as const, label: 'Proteina (g)', color: '#22c55e' },
+                { key: 'protein' as const, label: 'Proteína (g)', color: '#22c55e' },
                 { key: 'carbs' as const, label: 'Hidratos (g)', color: '#f97316' },
                 { key: 'fat' as const, label: 'Gordura (g)', color: '#3b82f6' },
               ].map(m => (
@@ -383,7 +383,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
       }}>
         {[
           { value: totals.calories, goal: GOALS.calories, color: 'var(--accent)', label: 'Calorias', unit: 'kcal' as const },
-          { value: totals.protein, goal: GOALS.protein, color: '#22c55e', label: 'Proteina', unit: 'g' as const },
+          { value: totals.protein, goal: GOALS.protein, color: '#22c55e', label: 'Proteína', unit: 'g' as const },
           { value: totals.carbs, goal: GOALS.carbs, color: '#f97316', label: 'Hidratos', unit: 'g' as const },
           { value: totals.fat, goal: GOALS.fat, color: '#3b82f6', label: 'Gordura', unit: 'g' as const },
         ].map(m => (
@@ -410,7 +410,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
         }}>
           <BookOpen size={16} color="#a855f7" />
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Receituario</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>Receituário</div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{savedRecipesCount} receita{savedRecipesCount !== 1 ? 's' : ''}</div>
           </div>
         </NextLink>
@@ -446,10 +446,10 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
           display: 'flex', flexDirection: 'column', gap: 12,
           animation: 'fadeInUp 0.2s ease',
         }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Registar refeicao</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>Registar refeição</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Nome da refeicao</label>
+              <label style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Nome da refeição</label>
               <input
                 value={form.mealName}
                 onChange={e => setForm(f => ({ ...f, mealName: e.target.value }))}
@@ -472,7 +472,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
               <input type="number" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: e.target.value }))} placeholder="500" style={inputStyle} />
             </div>
             <div>
-              <label style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Proteina (g)</label>
+              <label style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Proteína (g)</label>
               <input type="number" value={form.protein} onChange={e => setForm(f => ({ ...f, protein: e.target.value }))} placeholder="40" style={inputStyle} />
             </div>
             <div>
@@ -503,7 +503,7 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <h2 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text)' }}>
-            Refeicoes de Hoje
+            Refeições de Hoje
             {logs.length > 0 && (
               <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-muted)', fontWeight: 400 }}>
                 {logs.length} {logs.length === 1 ? 'entrada' : 'entradas'}
@@ -519,8 +519,8 @@ export function NutritionOverviewClient({ logs: initialLogs, today, savedRecipes
             textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
           }}>
             <div style={{ fontSize: 36 }}>🥗</div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>Sem refeicoes registadas hoje</p>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Regista uma refeicao ou gera uma receita com IA</p>
+            <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>Sem refeições registadas hoje</p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Regista uma refeição ou gera uma receita com IA</p>
             <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
               <button onClick={() => setShowForm(true)} style={{
                 fontSize: 12, fontWeight: 600, color: 'var(--text)',

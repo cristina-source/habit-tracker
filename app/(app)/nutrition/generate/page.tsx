@@ -385,10 +385,10 @@ export default function GeneratePage() {
         {/* Actions */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           <button onClick={saveRecipe} disabled={saving} style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0C', background: color, border: 'none', borderRadius: 'var(--radius-md)', padding: '10px 18px', cursor: 'pointer', opacity: saving ? 0.7 : 1 }}>
-            {saving ? 'A guardar...' : '💾 Guardar no Receituario'}
+            {saving ? 'A guardar...' : '💾 Guardar no Receituário'}
           </button>
           <button onClick={logAsMeal} disabled={loggingMeal} style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 18px', cursor: 'pointer', opacity: loggingMeal ? 0.7 : 1 }}>
-            {loggingMeal ? 'A registar...' : '🍽️ Registar Refeicao'}
+            {loggingMeal ? 'A registar...' : '🍽️ Registar Refeição'}
           </button>
           <button onClick={() => { setStep('options'); setRecipe(null) }} style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '10px 18px', cursor: 'pointer' }}>
             🔄 Gerar Outra

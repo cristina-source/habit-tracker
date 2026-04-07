@@ -45,6 +45,8 @@ export function TrainingClient({ thisWeek: initialWeek, allSessions, weekStart: 
   const [thisWeek, setThisWeek] = useState(initialWeek)
   const [selectedType, setSelectedType] = useState<TrainingType>('Força')
   const [loading, setLoading] = useState<string | null>(null)
+  const [completingId, setCompletingId] = useState<string | null>(null)
+  const [completionForm, setCompletionForm] = useState({ duration: '', notes: '' })
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -83,11 +85,22 @@ export function TrainingClient({ thisWeek: initialWeek, allSessions, weekStart: 
   const markComplete = async (sessionId: string) => {
     setLoading(`complete-${sessionId}`)
     try {
-      const res = await fetch(`/api/training/${sessionId}/complete`, { method: 'POST' })
+      const body: { duration?: number; notes?: string } = {}
+      if (completionForm.duration) body.duration = parseInt(completionForm.duration)
+      if (completionForm.notes.trim()) body.notes = completionForm.notes.trim()
+
+      const res = await fetch(`/api/training/${sessionId}/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
       if (res.ok) {
+        const updated = await res.json()
         setThisWeek((prev) =>
-          prev.map((s) => (s.id === sessionId ? { ...s, completed: true } : s))
+          prev.map((s) => (s.id === sessionId ? { ...s, completed: true, duration: updated.duration, notes: updated.notes } : s))
         )
+        setCompletingId(null)
+        setCompletionForm({ duration: '', notes: '' })
         startTransition(() => router.refresh())
       }
     } finally {
@@ -246,7 +259,11 @@ export function TrainingClient({ thisWeek: initialWeek, allSessions, weekStart: 
                       </div>
                       {!session.completed && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); markComplete(session.id) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCompletingId(session.id)
+                            setCompletionForm({ duration: '', notes: '' })
+                          }}
                           style={{
                             position: 'absolute',
                             top: '4px',
@@ -293,6 +310,67 @@ export function TrainingClient({ thisWeek: initialWeek, allSessions, weekStart: 
           })}
         </div>
       </div>
+
+      {/* Inline completion form — shown when marking a session as complete */}
+      {completingId && (() => {
+        const sess = thisWeek.find(s => s.id === completingId)
+        return sess ? (
+          <div style={{
+            background: 'var(--surface)', border: '1px solid rgba(200,255,62,0.25)',
+            borderRadius: 12, padding: '20px',
+            animation: 'fadeInUp 0.2s ease both',
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 14 }}>
+              {TYPE_EMOJI[sess.type as TrainingType]} Concluir {sess.type}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
+                  Duração (min)
+                </label>
+                <input
+                  type="number"
+                  value={completionForm.duration}
+                  onChange={e => setCompletionForm(f => ({ ...f, duration: e.target.value }))}
+                  placeholder="60"
+                  min={1}
+                  style={{ width: '100%', fontSize: 13 }}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
+                  Notas
+                </label>
+                <input
+                  type="text"
+                  value={completionForm.notes}
+                  onChange={e => setCompletionForm(f => ({ ...f, notes: e.target.value }))}
+                  placeholder="Ex: PR no squat 100kg"
+                  style={{ width: '100%', fontSize: 13 }}
+                  onKeyDown={e => e.key === 'Enter' && markComplete(completingId)}
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setCompletingId(null); setCompletionForm({ duration: '', notes: '' }) }}
+                style={{ fontSize: 12, color: 'var(--text-muted)', background: 'transparent', border: '1px solid var(--border)', borderRadius: 7, padding: '7px 14px', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => markComplete(completingId)}
+                disabled={loading === `complete-${completingId}`}
+                style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0C', background: 'var(--accent)', border: 'none', borderRadius: 7, padding: '7px 16px', cursor: 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                <Check size={13} strokeWidth={3} />
+                Marcar como Concluído
+              </button>
+            </div>
+          </div>
+        ) : null
+      })()}
 
       {/* 4-week heatmap */}
       <div
