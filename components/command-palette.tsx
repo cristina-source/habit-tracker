@@ -14,6 +14,8 @@ import {
   Play,
   Plus,
   Droplets,
+  Apple,
+  FileText,
 } from 'lucide-react'
 
 interface Command {
@@ -41,12 +43,15 @@ export function CommandPalette() {
     { id: 'nav-jejum', label: 'Jejum Intermitente', description: 'Iniciar ou parar sessão de jejum', icon: <Clock size={16} />, action: () => router.push('/jejum'), shortcut: 'G J', group: 'Navegação', keywords: 'fasting 16:8 omad jeûne' },
     { id: 'nav-treino', label: 'Treino', description: 'Ver e registar plano de treino', icon: <Dumbbell size={16} />, action: () => router.push('/treino'), shortcut: 'G T', group: 'Navegação', keywords: 'workout gym exercício força' },
     { id: 'nav-progresso', label: 'Progresso', description: 'Evolução, heatmap e streaks', icon: <TrendingUp size={16} />, action: () => router.push('/progresso'), shortcut: 'G P', group: 'Navegação', keywords: 'stats analytics evolução' },
+    { id: 'nav-nutricao', label: 'Nutrição', description: 'Refeições, macros e receitas', icon: <Apple size={16} />, action: () => router.push('/nutrition'), shortcut: 'G N', group: 'Navegação', keywords: 'nutrition comida calorias proteina receitas' },
+    { id: 'nav-relatorio', label: 'Relatório', description: 'Resumo mensal de progresso', icon: <FileText size={16} />, action: () => router.push('/relatorio'), shortcut: 'G R', group: 'Navegação', keywords: 'report monthly mensal pdf' },
     { id: 'nav-definicoes', label: 'Definições', description: 'Conta, Apple Health e integrações', icon: <Settings size={16} />, action: () => router.push('/definicoes'), shortcut: 'G ,', group: 'Navegação', keywords: 'settings config account' },
     // Acções rápidas
     { id: 'action-jejum', label: 'Iniciar Jejum', description: 'Começa uma nova sessão de jejum', icon: <Play size={16} />, action: () => router.push('/jejum'), group: 'Acções Rápidas', keywords: 'start fasting começar jejum' },
     { id: 'action-habito', label: 'Criar Novo Hábito', description: 'Adiciona um hábito ao teu plano diário', icon: <Plus size={16} />, action: () => router.push('/habitos'), group: 'Acções Rápidas', keywords: 'new habit adicionar criar' },
     { id: 'action-treino', label: 'Registar Treino Hoje', description: 'Adiciona sessão de treino para hoje', icon: <Dumbbell size={16} />, action: () => router.push('/treino'), group: 'Acções Rápidas', keywords: 'workout log registar sessão' },
     { id: 'action-agua', label: 'Registar Água', description: 'Actualiza a tua hidratação diária', icon: <Droplets size={16} />, action: () => router.push('/dashboard'), group: 'Acções Rápidas', keywords: 'water hidratação beber' },
+    { id: 'action-refeicao', label: 'Registar Refeição', description: 'Adiciona uma refeição ao diário nutricional', icon: <Apple size={16} />, action: () => router.push('/nutrition'), group: 'Acções Rápidas', keywords: 'meal food comida calorias log' },
   ]
 
   const filteredCommands = query.trim()
