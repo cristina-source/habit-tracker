@@ -8,9 +8,10 @@ import { toast } from '@/lib/toast'
 interface Props {
   initialWater: number
   goal?: number
+  className?: string
 }
 
-export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
+export function WaterWidget({ initialWater, goal = 2.5, className = '' }: Props) {
   const [water, setWater] = useState(initialWater)
   const [loading, setLoading] = useState(false)
   const [, startTransition] = useTransition()
@@ -39,9 +40,7 @@ export function WaterWidget({ initialWater, goal = 2.5 }: Props) {
   }
 
   return (
-    <div style={{
-      gridColumn: '3',
-      gridRow: '1',
+    <div className={className} style={{
       background: 'var(--surface)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-md)',

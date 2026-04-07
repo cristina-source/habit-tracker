@@ -102,7 +102,8 @@ export default async function DashboardPage() {
 
   const levelColor = levelColors[disciplineResult.level]
   const waterPct = Math.min(Math.round((waterIntake / 2.5) * 100), 100)
-  const dateLabel = today.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateLabelRaw = today.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' })
+  const dateLabel = dateLabelRaw.charAt(0).toUpperCase() + dateLabelRaw.slice(1)
 
   // Weekly insight
   const wLogs = weekLogs as Array<{ consistencyScore: number; date: Date }>
@@ -143,11 +144,11 @@ export default async function DashboardPage() {
           <h1 style={{ fontSize: '26px', fontWeight: '700', color: 'var(--text)', marginBottom: '4px', letterSpacing: '-0.5px' }}>
             {getGreeting(session?.user?.name)}.
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
             {dateLabel}
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <kbd style={{
             fontSize: 11,
             color: 'var(--text-muted)',
@@ -196,9 +197,8 @@ export default async function DashboardPage() {
 
         {/* Score card — spans 2 rows, col 1 */}
         <div
+          className="bento-score"
           style={{
-            gridColumn: '1',
-            gridRow: '1 / 3',
             background: 'var(--surface)',
             border: `1px solid ${levelColor}22`,
             borderRadius: 'var(--radius-lg)',
@@ -235,9 +235,8 @@ export default async function DashboardPage() {
 
         {/* Fasting card — col 2, row 1 */}
         <div
+          className="bento-fasting"
           style={{
-            gridColumn: '2',
-            gridRow: '1',
             background: 'var(--surface)',
             border: `1px solid ${activeFasting ? 'rgba(200,255,62,0.15)' : 'var(--border)'}`,
             borderRadius: 'var(--radius-md)',
@@ -269,10 +268,11 @@ export default async function DashboardPage() {
         </div>
 
         {/* Water card — col 3, row 1 (interactive widget) */}
-        <WaterWidget initialWater={waterIntake} goal={2.5} />
+        <WaterWidget initialWater={waterIntake} goal={2.5} className="bento-water" />
 
         {/* Habits done — col 4, row 1 */}
         <KpiCard
+          className="bento-habits"
           title="Hábitos Hoje"
           value={`${habitsCompleted}/${habitsTotal}`}
           subtitle={habitsTotal === 0 ? 'Sem hábitos criados' : habitsCompleted === habitsTotal && habitsTotal > 0 ? 'Todos completos!' : `${habitsTotal - habitsCompleted} por completar`}
@@ -285,9 +285,8 @@ export default async function DashboardPage() {
 
         {/* Training today — col 2-3, row 2 */}
         <div
+          className="bento-training"
           style={{
-            gridColumn: '2 / 4',
-            gridRow: '2',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
@@ -343,9 +342,8 @@ export default async function DashboardPage() {
 
         {/* Quick actions — col 4, row 2 */}
         <div
+          className="bento-actions"
           style={{
-            gridColumn: '4',
-            gridRow: '2',
             background: 'var(--surface)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-md)',
